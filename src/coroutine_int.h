@@ -50,6 +50,19 @@ void rq_init(struct rq *rq);
 int rq_enqueue(struct rq *rq, struct task_struct *task);
 struct task_struct *rq_dequeue(struct rq *rq);
 
+/* runstack */
+#define BUFFER_SIZE 16
+
+struct rs {
+    unsigned int in; 
+    unsigned int mask; /* the size is power of two, so mask will be size - 1 */
+    struct task_struct *r[BUFFER_SIZE];
+};
+
+void rs_init(struct rs *rs);
+int rs_enstack(struct rs *rs, struct task_struct *task);
+struct task_struct *rs_destack(struct rs *rs);
+
 /* main data structure */
 
 #define MAX_CR_TABLE_SIZE 10
@@ -63,6 +76,7 @@ struct cr {
     /* scheduler - chose by the flags */
     struct rq rq; /* FIFO */
     struct rb_root root; /* Default */
+    struct rs rs; /* FILO */
 
     /* sched operations */
     int (*schedule)(struct cr *cr, job_t func, void *args);
